@@ -1,7 +1,9 @@
+#DayJaney Pringle
 import tkinter as tk
 from tkinter import simpledialog
 import random
 import time
+import winsound
 
 MAX_LINES = 3
 MAX_BET = 100
@@ -36,6 +38,18 @@ class SlotMachineGame:
         self.root = root
         self.balance = 0
         self.setup_ui()
+        self.load_sounds()
+
+    def load_sounds(self):
+        self.spin_sound = "spin.wav"
+        self.win_sound = "win.wav"
+        self.loss_sound = "loss.wav"
+        self.game_sound = "game.wav"
+        winsound.PlaySound(self.spin_sound, winsound.SND_ASYNC)
+        winsound.PlaySound(self.win_sound, winsound.SND_ASYNC)
+        winsound.PlaySound(self.loss_sound, winsound.SND_ASYNC)
+        winsound.PlaySound(self.game_sound, winsound.SND_ASYNC)
+ 
 
     def setup_ui(self):
         self.root.title("Slot Machine Game")
@@ -114,9 +128,10 @@ class SlotMachineGame:
         self.balance -= total_bet
         self.update_balance_label()
 
-        self.animate_spin(lines)
+        self.animate_spin(lines, bet)
 
-    def animate_spin(self, lines):
+    def animate_spin(self, lines, bet):
+        winsound.PlaySound(self.spin_sound, winsound.SND_FILENAME | winsound.SND_ASYNC)  # Play spin sound
         reels = []
         for i in range(COLS):
             reel = [random.choice(list(symbol_count.keys())) for _ in range(ROWS)]
@@ -141,13 +156,15 @@ class SlotMachineGame:
         slots = [reel[:lines] for reel in reels]
         self.display_slot_machine(slots)
 
-        winnings, _ = self.check_winnings(slots, lines, MIN_BET, symbol_value)
+        winnings, _ = self.check_winnings(slots, lines, bet, symbol_value)
         if winnings > 0:
             self.balance += winnings
             self.update_balance_label()
             self.result_label.config(text=f"Congratulations! You won ${winnings}!")
+            winsound.PlaySound(self.win_sound, winsound.SND_FILENAME | winsound.SND_ASYNC)  # Play win sound
         else:
             self.result_label.config(text="Sorry, you didn't win anything.")
+            winsound.PlaySound(self.loss_sound, winsound.SND_FILENAME | winsound.SND_ASYNC)  # Play loss sound
 
         # After spin, update spin button state
         self.update_spin_button()
@@ -172,13 +189,13 @@ class SlotMachineGame:
     def check_winnings(self, columns, lines, bet, values):
         winnings = 0
         winning_lines = []
-        
+
         # Check each line individually
         for line in range(lines):
             symbols_in_line = [column[line] for column in columns]
             if len(set(symbols_in_line)) == 1:  # Check if all symbols in the line are the same
                 symbol = symbols_in_line[0]
-                winnings += values[symbol] * bet  # Calculate winnings for one line
+                winnings += symbol_value[symbol] * bet  # Calculate winnings for one line
                 winning_lines.append(line + 1)
 
         # Check for multiple lines win
@@ -186,6 +203,7 @@ class SlotMachineGame:
             winnings *= lines  # Multiply winnings by the number of lines if all lines are winning
 
         return winnings, winning_lines
+
 
 
     def update_balance_label(self):
@@ -205,3 +223,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
