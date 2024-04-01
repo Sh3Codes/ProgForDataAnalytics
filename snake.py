@@ -133,7 +133,6 @@ def restart_game(event=None):
     global food
     global obstacles
     canvas.delete("all")
-    window.unbind('<Key>')
     snake = Snake()
     food = Food(obstacles)
     obstacles = [Obstacle() for _ in range(5)]  # Add 5 obstacles
