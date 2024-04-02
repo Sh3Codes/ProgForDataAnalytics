@@ -1,6 +1,7 @@
 from tkinter import *
 import random
 
+# Game constants
 GAME_WIDTH = 700
 GAME_HEIGHT = 700
 SPEED = 200
@@ -117,45 +118,70 @@ def check_collisions(snake, obstacles):
 def game_over():
     global score
     global high_score
-    canvas.delete(ALL)
-    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2,
-                       font=('consolas',70), text="GAME OVER", fill=GAME_OVER_COLOR, tag="gameover")
-    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2 + 100,
-                       font=('consolas',20), text="Press 'R' to retry", fill="white", tag="retry")
+
     if score > high_score:
         high_score = score
-    label.config(text="Score: {} | High Score: {}".format(score, high_score))
-    score = 0
+        high_score_label.config(text="High Score: {}".format(high_score))
+        save_high_score(high_score)
+
+    canvas.delete(ALL)
+    canvas.create_text(GAME_WIDTH/2, GAME_HEIGHT/2,
+                       font=('consolas',70), text="GAME OVER", fill=GAME_OVER_COLOR, tag="gameover")
+    canvas.create_text(GAME_WIDTH/2, GAME_HEIGHT/2 + 100,
+                       font=('consolas',20), text="Press 'R' to retry", fill="white", tag="retry")
+    label.config(text="Score: {}".format(score))
     window.bind('<Key>', restart_game)
 
 def restart_game(event=None):
     global snake
     global food
     global obstacles
+    global score
+
+    score = 0
+    label.config(text="Score: {}".format(score))
+    
     canvas.delete("all")
     snake = Snake()
     food = Food(obstacles)
     obstacles = [Obstacle() for _ in range(5)]  # Add 5 obstacles
     next_turn(snake, food, obstacles)
 
-def exit_game():
-    window.destroy()
+def save_high_score(score):
+    try:
+        with open("high_score.txt", "w") as file:
+            file.write(str(score))
+    except Exception as e:
+        print("An error occurred while saving the high score:", e)
+
+def load_high_score():
+    try:
+        with open("high_score.txt", "r") as file:
+            return int(file.read())
+    except FileNotFoundError:
+        return 0
+    except Exception as e:
+        print("An error occurred while loading the high score:", e)
+        return 0
 
 window = Tk()
 window.title("Snake game")
 window.resizable(False, False)
 
 score = 0
-high_score = 0  # Initializing high score
 direction = 'down'
+high_score = load_high_score()
 
-label = Label(window, text="Score: {} | High Score: {}".format(score, high_score), font=('consolas', 40))
+label = Label(window, text="Score: {}".format(score), font=('consolas', 40))
 label.pack()
+
+high_score_label = Label(window, text="High Score: {}".format(high_score), font=('consolas', 20))
+high_score_label.pack()
 
 canvas = Canvas(window, bg=BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
 canvas.pack()
 
-exit_button = Button(window, text="Exit", command=exit_game)
+exit_button = Button(window, text="Exit", command=window.destroy)
 exit_button.pack()
 
 window.update()
