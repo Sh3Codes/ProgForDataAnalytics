@@ -1,0 +1,3 @@
+Player's score: 0
+Player's score: 1
+Avant's score: 1

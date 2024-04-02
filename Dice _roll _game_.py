@@ -1,3 +1,4 @@
+
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 import random
@@ -21,7 +22,7 @@ class DiceGame:
         self.play_button = tk.Button(self.root, text="Play", command=self.play_game, font=("Arial", 12), fg="blue")
         self.play_button.pack(pady=5)
 
-        self.quit_button = tk.Button(self.root, text="Quit", command=self.root.destroy, font=("Arial", 12), fg="blue")
+        self.quit_button = tk.Button(self.root, text="Quit", command=self.save_score_and_exit, font=("Arial", 12), fg="blue")
         self.quit_button.pack(pady=5)
 
     def play_game(self):
@@ -86,6 +87,15 @@ class DiceGame:
         if number == 6:  # Middle-left and middle-right dots for 6
             self.canvas.create_oval(x - 3 * radius, y - radius, x - radius, y + radius, fill="red", tags="dice")
             self.canvas.create_oval(x + radius, y - radius, x + 3 * radius, y + radius, fill="red", tags="dice")
+
+    def save_score_and_exit(self):
+        try:
+            with open("scores.txt", "a") as file:
+                file.write(f"Avant's score: {self.correct_guesses}\n")  # Append in a new line
+        except Exception as e:
+            print("An error occurred while saving the score:", e)
+        finally:
+            self.root.destroy()
 
 def main():
     root = tk.Tk()
