@@ -1,8 +1,8 @@
-
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 import random
 import time
+import subprocess
 
 class DiceGame:
     def __init__(self, root):
@@ -96,6 +96,7 @@ class DiceGame:
             print("An error occurred while saving the score:", e)
         finally:
             self.root.destroy()
+            subprocess.Popen(["python", "Main.py"])
 
 def main():
     root = tk.Tk()

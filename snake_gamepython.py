@@ -1,5 +1,6 @@
 from tkinter import *
 import random
+import subprocess
 
 # Game constants
 GAME_WIDTH = 700
@@ -149,20 +150,46 @@ def restart_game(event=None):
 
 def save_high_score(score):
     try:
-        with open("high_score.txt", "w") as file:
-            file.write(str(score))
+        with open("scores.txt", "r+") as file:
+            lines = file.readlines()
+            file.seek(0)  # Move the file pointer to the beginning
+            found_shantal = False
+
+            for line in lines:
+                if "Shantal's score" in line:
+                    file.write(f"Shantal's score: {score}\n")  # Overwrite Shantal's score
+                    found_shantal = True
+                else:
+                    file.write(line)  # Rewrite other lines unchanged
+
+            if not found_shantal:
+                file.write(f"Shantal's score: {score}\n")  # If Shantal's score doesn't exist, append it
+
+            file.truncate()  # Truncate the file after writing to ensure previous content is removed if new content is smaller
     except Exception as e:
         print("An error occurred while saving the high score:", e)
 
+
 def load_high_score():
     try:
-        with open("high_score.txt", "r") as file:
-            return int(file.read())
+        with open("scores.txt", "r") as file:
+            for line in file:
+                if "Shantal's score" in line:
+                    _, score = line.split(":")  # Split the line by ":" to get the score
+                    return int(score.strip())  # Convert score to an integer and return
+        return 0  # Shantal's score not found, return 0
     except FileNotFoundError:
-        return 0
+        return 0  # File doesn't exist, return 0
     except Exception as e:
-        print("An error occurred while loading the high score:", e)
+        print("An error occurred while loading Shantal's score:", e)
         return 0
+    
+def save_score_and_exit():
+    global high_score
+    save_high_score(high_score)
+    window.destroy()
+    subprocess.Popen(["python", "Main.py"])
+    
 
 window = Tk()
 window.title("Snake game")
@@ -181,7 +208,7 @@ high_score_label.pack()
 canvas = Canvas(window, bg=BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
 canvas.pack()
 
-exit_button = Button(window, text="Exit", command=window.destroy)
+exit_button = Button(window, text="Exit", command=save_score_and_exit)
 exit_button.pack()
 
 window.update()

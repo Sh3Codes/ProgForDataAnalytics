@@ -232,7 +232,7 @@ class SlotMachineGame:
             self.spin_button.config(state="disabled")
         else:
             self.spin_button.config(state="normal")
-            
+             
     def save_score_and_exit(self):
         try:
             with open("scores.txt", "a") as file:
