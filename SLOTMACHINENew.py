@@ -1,9 +1,10 @@
-#DayJaney Pringle
 import tkinter as tk
-from tkinter import simpledialog
+from tkinter import simpledialog, messagebox
 import random
 import time
 import winsound
+import subprocess
+
 
 MAX_LINES = 3
 MAX_BET = 100
@@ -37,8 +38,23 @@ class SlotMachineGame:
     def __init__(self, root):
         self.root = root
         self.balance = 0
+        self.score = self.load_score()  # Initialize score by loading from the file
         self.setup_ui()
         self.load_sounds()
+
+    def load_score(self):
+        try:
+            with open("scores.txt", "r") as file:
+                lines = file.readlines()
+                for line in lines:
+                    if line.startswith("Dayjah's score"):
+                        return int(line.split(":")[1].strip())
+        except FileNotFoundError:
+            print("Scores file not found.")
+        except Exception as e:
+            print("An error occurred while loading the score:", e)
+        return 0  # Return 0 if score loading fails or file not found
+
 
     def load_sounds(self):
         self.spin_sound = "spin.wav"
@@ -49,7 +65,6 @@ class SlotMachineGame:
         winsound.PlaySound(self.win_sound, winsound.SND_ASYNC)
         winsound.PlaySound(self.loss_sound, winsound.SND_ASYNC)
         winsound.PlaySound(self.game_sound, winsound.SND_ASYNC)
- 
 
     def setup_ui(self):
         self.root.title("Slot Machine Game")
@@ -61,6 +76,10 @@ class SlotMachineGame:
         self.balance_label = tk.Label(self.root, text="Balance: $0", font=("Arial", 14), bg="black", fg="white")
         self.balance_label.pack()
 
+        # Add score label
+        self.score_label = tk.Label(self.root, text="Score: 0", font=("Arial", 14), bg="black", fg="white")
+        self.score_label.pack()
+
         button_frame = tk.Frame(self.root, bg="black")
         button_frame.pack()
 
@@ -70,7 +89,7 @@ class SlotMachineGame:
         self.spin_button = tk.Button(button_frame, text="Spin", command=self.spin, font=("Arial", 12), bg="yellow", fg="black", width=10)
         self.spin_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.exit_button = tk.Button(button_frame, text="Exit", command=self.root.destroy, font=("Arial", 12), bg="red", fg="white", width=10)
+        self.exit_button = tk.Button(button_frame, text="Exit", command=self.save_score_and_exit, font=("Arial", 12), bg="red", fg="white", width=10)
         self.exit_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.result_label = tk.Label(self.root, text="", font=("Arial", 12), bg="black", fg="white")
@@ -83,7 +102,6 @@ class SlotMachineGame:
         if amount is not None and amount > 0:
             self.balance += amount
             self.update_balance_label()
-            # Enable spin button after deposit
             self.update_spin_button()
 
     def get_number_of_lines(self):
@@ -160,13 +178,14 @@ class SlotMachineGame:
         if winnings > 0:
             self.balance += winnings
             self.update_balance_label()
+            self.score += 1  # Increase score
+            self.update_score_label()  # Update score label
             self.result_label.config(text=f"Congratulations! You won ${winnings}!")
             winsound.PlaySound(self.win_sound, winsound.SND_FILENAME | winsound.SND_ASYNC)  # Play win sound
         else:
             self.result_label.config(text="Sorry, you didn't win anything.")
             winsound.PlaySound(self.loss_sound, winsound.SND_FILENAME | winsound.SND_ASYNC)  # Play loss sound
 
-        # After spin, update spin button state
         self.update_spin_button()
 
     def display_reel(self, reel, col):
@@ -190,31 +209,39 @@ class SlotMachineGame:
         winnings = 0
         winning_lines = []
 
-        # Check each line individually
         for line in range(lines):
             symbols_in_line = [column[line] for column in columns]
-            if len(set(symbols_in_line)) == 1:  # Check if all symbols in the line are the same
+            if len(set(symbols_in_line)) == 1:
                 symbol = symbols_in_line[0]
-                winnings += symbol_value[symbol] * bet  # Calculate winnings for one line
+                winnings += symbol_value[symbol] * bet
                 winning_lines.append(line + 1)
 
-        # Check for multiple lines win
         if len(winning_lines) == lines:
-            winnings *= lines  # Multiply winnings by the number of lines if all lines are winning
+            winnings *= lines
 
         return winnings, winning_lines
-
-
 
     def update_balance_label(self):
         self.balance_label.config(text=f"Balance: ${self.balance}")
 
+    def update_score_label(self):
+        self.score_label.config(text=f"Score: {self.score}")
+
     def update_spin_button(self):
-        # Disable spin button if balance is 0
         if self.balance <= 0:
             self.spin_button.config(state="disabled")
         else:
             self.spin_button.config(state="normal")
+            
+    def save_score_and_exit(self):
+        try:
+            with open("scores.txt", "a") as file:
+                file.write(f"Dayjah's score: {self.score}\n")  # Append in a new line
+        except Exception as e:
+            print("An error occurred while saving the score:", e)
+        finally:
+            self.root.destroy()
+            subprocess.Popen(["python", "Main.py"])
 
 def main():
     root = tk.Tk()
@@ -223,4 +250,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
