@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font as tkfont
 import subprocess
+import os
 
 root = None  # Define root at the module level
 
@@ -29,8 +30,17 @@ def launch_dice_roll_guess():
     root.destroy()  # Close the main menu when launching a game
 
 def exit_game():
-    print("Exiting...")
-    root.destroy()
+    try:
+        print("Exiting...")
+        root.destroy()
+        # Delete the scores.txt file if it exists
+        if os.path.exists("scores.txt"):
+            os.remove("scores.txt")
+            print("scores.txt file deleted.")
+        else:
+            print("scores.txt file does not exist.")
+    except Exception as e:
+        print("An error occurred while exiting the game:", e)
 
 def main():
     global root
