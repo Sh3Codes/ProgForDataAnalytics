@@ -235,8 +235,26 @@ class SlotMachineGame:
              
     def save_score_and_exit(self):
         try:
-            with open("scores.txt", "a") as file:
-                file.write(f"Dayjah's score: {self.score}\n")  # Append in a new line
+            score_exists = False
+            try:
+                with open("scores.txt", "r") as file:
+                    lines = file.readlines()
+                    for i, line in enumerate(lines):
+                        if line.startswith("Dayjah's score:"):
+                            lines[i] = f"Dayjah's score: {self.score}\n"
+                            score_exists = True
+                            break
+            except FileNotFoundError:
+                # File doesn't exist, set lines to empty list
+                lines = []
+
+            if score_exists:
+                with open("scores.txt", "w") as file:
+                    file.writelines(lines)
+            else:
+                with open("scores.txt", "a") as file:
+                    file.write(f"Dayjah's score: {self.score}\n")
+
         except Exception as e:
             print("An error occurred while saving the score:", e)
         finally:

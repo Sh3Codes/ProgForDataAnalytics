@@ -90,8 +90,26 @@ class DiceGame:
 
     def save_score_and_exit(self):
         try:
-            with open("scores.txt", "a") as file:
-                file.write(f"Avant's score: {self.correct_guesses}\n")  # Append in a new line
+            score_exists = False
+            try:
+                with open("scores.txt", "r") as file:
+                    lines = file.readlines()
+                    for i, line in enumerate(lines):
+                        if line.startswith("Avant's score:"):
+                            lines[i] = f"Avant's score: {self.correct_guesses}\n"
+                            score_exists = True
+                            break
+            except FileNotFoundError:
+                # File doesn't exist, set lines to empty list
+                lines = []
+
+            if score_exists:
+                with open("scores.txt", "w") as file:
+                    file.writelines(lines)
+            else:
+                with open("scores.txt", "a") as file:
+                    file.write(f"Avant's score: {self.correct_guesses}\n")
+
         except Exception as e:
             print("An error occurred while saving the score:", e)
         finally:

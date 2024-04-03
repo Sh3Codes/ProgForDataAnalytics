@@ -149,26 +149,30 @@ def restart_game(event=None):
     next_turn(snake, food, obstacles)
 
 def save_high_score(score):
-    try:
-        with open("scores.txt", "r+") as file:
-            lines = file.readlines()
-            file.seek(0)  # Move the file pointer to the beginning
-            found_shantal = False
+        try:
+            try:
+                with open("scores.txt", "r+") as file:
+                    lines = file.readlines()
+                    file.seek(0)  # Move the file pointer to the beginning
+                    found_shantal = False
 
-            for line in lines:
-                if "Shantal's score" in line:
-                    file.write(f"Shantal's score: {score}\n")  # Overwrite Shantal's score
-                    found_shantal = True
-                else:
-                    file.write(line)  # Rewrite other lines unchanged
+                    for line in lines:
+                        if "Shantal's score" in line:
+                            file.write(f"Shantal's score: {score}\n")  # Overwrite Shantal's score
+                            found_shantal = True
+                        else:
+                            file.write(line)  # Rewrite other lines unchanged
 
-            if not found_shantal:
-                file.write(f"Shantal's score: {score}\n")  # If Shantal's score doesn't exist, append it
+                    if not found_shantal:
+                        file.write(f"Shantal's score: {score}\n")  # If Shantal's score doesn't exist, append it
 
-            file.truncate()  # Truncate the file after writing to ensure previous content is removed if new content is smaller
-    except Exception as e:
-        print("An error occurred while saving the high score:", e)
-
+                    file.truncate()  # Truncate the file after writing to ensure previous content is removed if new content is smaller
+            except FileNotFoundError:
+                # File doesn't exist, create it and write Shantal's score
+                with open("scores.txt", "w") as file:
+                    file.write(f"Shantal's score: {score}\n")
+        except Exception as e:
+            print("An error occurred while saving the high score:", e)
 
 def load_high_score():
     try:
