@@ -24,7 +24,7 @@ def launch_snake_game():
 def launch_dice_roll_guess():
     global root  # Access root defined at the module level
     try:
-        subprocess.Popen(["python","Dice_roll_game_.py"])
+        subprocess.Popen(["python", "Dice_roll_game_.py"])
     except Exception as e:
         print("Error launching dice rolling game:", e)
     root.destroy()  # Close the main menu when launching a game
@@ -41,6 +41,27 @@ def exit_game():
             print("scores.txt file does not exist.")
     except Exception as e:
         print("An error occurred while exiting the game:", e)
+
+def read_scores():
+    try:
+        with open("scores.txt", "r") as file:
+            lines = file.readlines()
+            scores = {}
+            for line in lines:
+                name, score = line.strip().split(":")
+                scores[name.strip()] = int(score.strip())
+            return scores
+    except FileNotFoundError:
+        return {"Dayjah": 0, "Avant": 0, "Shantal": 0}
+
+def display_scores():
+    scores = read_scores()
+    average_score = sum(scores.values()) / len(scores)
+    for i, (name, score) in enumerate(scores.items()):
+        label = tk.Label(root, text=f"{name}'s score: {score}", font=("Helvetica", 12))
+        label.pack(pady=5)
+    average_label = tk.Label(root, text=f"Average Score: {average_score:.2f}", font=("Helvetica", 12))
+    average_label.pack(pady=10)
 
 def main():
     global root
@@ -67,6 +88,9 @@ def main():
     dice_button = tk.Button(menu_frame, text="Dice Roll Guess", font=button_font, bg="#e67e22", fg="#ecf0f1", command=launch_dice_roll_guess)
     dice_button.pack(pady=10, padx=50, ipadx=20, ipady=10, fill=tk.BOTH)
 
+    scores_button = tk.Button(menu_frame, text="Display Scores", font=button_font, bg="#f39c12", fg="#ecf0f1", command=display_scores)
+    scores_button.pack(pady=10, padx=50, ipadx=20, ipady=10, fill=tk.BOTH)
+
     exit_button = tk.Button(menu_frame, text="Exit", font=button_font, bg="#e74c3c", fg="#ecf0f1", command=exit_game)
     exit_button.pack(pady=10, padx=50, ipadx=20, ipady=10, fill=tk.BOTH)
 
@@ -74,3 +98,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
