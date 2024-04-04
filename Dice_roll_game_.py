@@ -7,7 +7,7 @@ import subprocess
 class DiceGame:
     def __init__(self, root):
         self.root = root
-        self.correct_guesses = 0  # Variable to store the number of correct guesses
+        self.correct_guesses = 0  
         self.setup_ui()
 
     def setup_ui(self):
@@ -27,18 +27,20 @@ class DiceGame:
 
     def play_game(self):
         while True:
-            self.canvas.delete("all")  
+            self.canvas.delete("all")
 
             number_of_tries = 7
             while number_of_tries > 0:
                 guess = simpledialog.askinteger("Guess the Dice Number", "Enter your guess (1-6):")
-                if guess is not None and 1 <= guess <= 6:
+                if guess is None:  # User canceled the prompt
+                    break
+                elif 1 <= guess <= 6:
                     dice_roll = random.randint(1, 6)
                     self.roll_dice_animation()
                     self.display_message(f"The dice rolled: {dice_roll}")
 
                     if guess == dice_roll:
-                        self.correct_guesses += 1  # Increment correct guesses
+                        self.correct_guesses += 1
                         self.display_message("Congratulations! You guessed it right!")
                         break
                     else:
@@ -48,6 +50,9 @@ class DiceGame:
                     self.display_message("Invalid input! Please enter a number between 1 and 6.")
 
                 self.update_score_label(number_of_tries)
+
+            if guess is None:  # User canceled the prompt
+                break
 
             if number_of_tries == 0:
                 self.display_message("You've used all your tries. Better luck next time!")
@@ -76,15 +81,15 @@ class DiceGame:
         x = self.canvas.winfo_width() / 2
         y = self.canvas.winfo_height() / 2
         radius = 10
-        if number % 2 == 1:  # Center dot for odd numbers
+        if number % 2 == 1:
             self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill="red", tags="dice")
-        if number > 1:  # Top-left and bottom-right dots for 2 and 3
+        if number > 1:
             self.canvas.create_oval(x - 3 * radius, y - 3 * radius, x - radius, y - radius, fill="red", tags="dice")
             self.canvas.create_oval(x + radius, y + radius, x + 3 * radius, y + 3 * radius, fill="red", tags="dice")
-        if number > 3:  # Top-right and bottom-left dots for 4, 5, and 6
+        if number > 3:
             self.canvas.create_oval(x + radius, y - 3 * radius, x + 3 * radius, y - radius, fill="red", tags="dice")
             self.canvas.create_oval(x - 3 * radius, y + radius, x - radius, y + 3 * radius, fill="red", tags="dice")
-        if number == 6:  # Middle-left and middle-right dots for 6
+        if number == 6:
             self.canvas.create_oval(x - 3 * radius, y - radius, x - radius, y + radius, fill="red", tags="dice")
             self.canvas.create_oval(x + radius, y - radius, x + 3 * radius, y + radius, fill="red", tags="dice")
 
@@ -100,7 +105,6 @@ class DiceGame:
                             score_exists = True
                             break
             except FileNotFoundError:
-                # File doesn't exist, set lines to empty list
                 lines = []
 
             if score_exists:
