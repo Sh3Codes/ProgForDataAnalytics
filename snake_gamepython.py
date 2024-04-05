@@ -4,7 +4,7 @@ import subprocess
 
 # Game constants
 GAME_WIDTH = 700
-GAME_HEIGHT = 700
+GAME_HEIGHT = 500
 SPEED = 200
 SPACE_SIZE = 50
 BODY_PARTS = 3
